@@ -1,0 +1,393 @@
+        -:    0:Source:training_nn.cpp
+        -:    0:Graph:training_nn.gcno
+        -:    0:Data:training_nn.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <iostream>
+        -:    2:#include <fstream>
+        -:    3:#include <cstring>
+        -:    4:#include <string>
+        -:    5:#include <cstdio>
+        -:    6:#include <cstdlib>
+        -:    7:#include <cmath>
+        -:    8:#include <vector>
+        -:    9:#include <set>
+        -:   10:#include <iterator>
+        -:   11:#include <algorithm>
+        -:   12:
+        -:   13:using namespace std;
+        -:   14:
+        -:   15:// Training image file name
+        1:   16:const string training_image_fn = "mnist/train-images.idx3-ubyte";
+        -:   17:
+        -:   18:// Training label file name
+        1:   19:const string training_label_fn = "mnist/train-labels.idx1-ubyte";
+        -:   20:
+        -:   21:// Weights file name
+        1:   22:const string model_fn = "model-neural-network.dat";
+        -:   23:
+        -:   24:// Report file name
+        1:   25:const string report_fn = "training-report.dat";
+        -:   26:
+        -:   27:// Number of training samples
+        -:   28:const int nTraining = 1;
+        -:   29:
+        -:   30:// Image size in MNIST database
+        -:   31:const int width = 28;
+        -:   32:const int height = 28;
+        -:   33:
+        -:   34:// n1 = Number of input neurons
+        -:   35:// n2 = Number of hidden neurons
+        -:   36:// n3 = Number of output neurons
+        -:   37:// epochs = Number of iterations for back-propagation algorithm
+        -:   38:// learning_rate = Learing rate
+        -:   39:// momentum = Momentum (heuristics to optimize back-propagation algorithm)
+        -:   40:// epsilon = Epsilon, no more iterations if the learning error is smaller than epsilon
+        -:   41:
+        -:   42:const int n1 = width * height; // = 784, without bias neuron 
+        -:   43:const int n2 = 128; 
+        -:   44:const int n3 = 10000; // Ten classes: 0 - 9
+        -:   45:const int epochs = 512;
+        -:   46:const double learning_rate = 1e-3;
+        -:   47:const double momentum = 0.9;
+        -:   48:const double epsilon = 1e-3;
+        -:   49:
+        -:   50:// From layer 1 to layer 2. Or: Input layer - Hidden layer
+        -:   51:double *w1[n1 + 1], *delta1[n1 + 1], *out1;
+        -:   52:
+        -:   53:// From layer 2 to layer 3. Or; Hidden layer - Output layer
+        -:   54:double *w2[n2 + 1], *delta2[n2 + 1], *in2, *out2, *theta2;
+        -:   55:
+        -:   56:// Layer 3 - Output layer
+        -:   57:double *in3, *out3, *theta3;
+        -:   58:double expected[n3 + 1];
+        -:   59:
+        -:   60:// Image. In MNIST: 28x28 gray scale images.
+        -:   61:int d[width + 1][height + 1];
+        -:   62:
+        -:   63:// File stream to read data (image, label) and write down a report
+        1:   64:ifstream image;
+        1:   65:ifstream label;
+        1:   66:ofstream report;
+        -:   67:
+        -:   68:// +--------------------+
+        -:   69:// | About the software |
+        -:   70:// +--------------------+
+        -:   71:
+        1:   72:void about() {
+        -:   73:	// Details
+        1:   74:	cout << "**************************************************" << endl;
+        1:   75:	cout << "*** Training Neural Network for MNIST database ***" << endl;
+        1:   76:	cout << "**************************************************" << endl;
+        1:   77:	cout << endl;
+        1:   78:	cout << "No. input neurons: " << n1 << endl;
+        1:   79:	cout << "No. hidden neurons: " << n2 << endl;
+        1:   80:	cout << "No. output neurons: " << n3 << endl;
+        1:   81:	cout << endl;
+        1:   82:	cout << "No. iterations: " << epochs << endl;
+        1:   83:	cout << "Learning rate: " << learning_rate << endl;
+        1:   84:	cout << "Momentum: " << momentum << endl;
+        1:   85:	cout << "Epsilon: " << epsilon << endl;
+        1:   86:	cout << endl;
+        1:   87:	cout << "Training image data: " << training_image_fn << endl;
+        1:   88:	cout << "Training label data: " << training_label_fn << endl;
+        1:   89:	cout << "No. training sample: " << nTraining << endl << endl;
+        1:   90:}
+        -:   91:
+        -:   92:// +-----------------------------------+
+        -:   93:// | Memory allocation for the network |
+        -:   94:// +-----------------------------------+
+        -:   95:
+        1:   96:void init_array() {
+        -:   97:	// Layer 1 - Layer 2 = Input layer - Hidden layer
+      785:   98:    for (int i = 1; i <= n1; ++i) {
+      784:   99:        w1[i] = new double [n2 + 1];
+      784:  100:        delta1[i] = new double [n2 + 1];
+      784:  101:    }
+        -:  102:    
+        1:  103:    out1 = new double [n1 + 1];
+        -:  104:
+        -:  105:	// Layer 2 - Layer 3 = Hidden layer - Output layer
+      129:  106:    for (int i = 1; i <= n2; ++i) {
+      128:  107:        w2[i] = new double [n3 + 1];
+      128:  108:        delta2[i] = new double [n3 + 1];
+      128:  109:    }
+        -:  110:    
+        1:  111:    in2 = new double [n2 + 1];
+        1:  112:    out2 = new double [n2 + 1];
+        1:  113:    theta2 = new double [n2 + 1];
+        -:  114:
+        -:  115:	// Layer 3 - Output layer
+        1:  116:    in3 = new double [n3 + 1];
+        1:  117:    out3 = new double [n3 + 1];
+        1:  118:    theta3 = new double [n3 + 1];
+        -:  119:    
+        -:  120:    // Initialization for weights from Input layer to Hidden layer
+      785:  121:    for (int i = 1; i <= n1; ++i) {
+   101136:  122:        for (int j = 1; j <= n2; ++j) {
+   100352:  123:            int sign = rand() % 2;
+        -:  124:
+        -:  125:            // Another strategy to randomize the weights - quite good 
+        -:  126:            // w1[i][j] = (double)(rand() % 10 + 1) / (10 * n2);
+        -:  127:            
+   100352:  128:            w1[i][j] = (double)(rand() % 6) / 10.0;
+   100352:  129:            if (sign == 1) {
+    50473:  130:				w1[i][j] = - w1[i][j];
+    50473:  131:			}
+   100352:  132:        }
+      784:  133:	}
+        -:  134:	
+        -:  135:	// Initialization for weights from Hidden layer to Output layer
+      129:  136:    for (int i = 1; i <= n2; ++i) {
+  1280128:  137:        for (int j = 1; j <= n3; ++j) {
+  1280000:  138:            int sign = rand() % 2;
+        -:  139:			
+        -:  140:			// Another strategy to randomize the weights - quite good 
+        -:  141:            // w2[i][j] = (double)(rand() % 6) / 10.0;
+        -:  142:
+  1280000:  143:            w2[i][j] = (double)(rand() % 10 + 1) / (10.0 * n3);
+  1280000:  144:            if (sign == 1) {
+   640495:  145:				w2[i][j] = - w2[i][j];
+   640495:  146:			}
+  1280000:  147:        }
+      128:  148:	}
+        1:  149:}
+        -:  150:
+        -:  151:// +------------------+
+        -:  152:// | Sigmoid function |
+        -:  153:// +------------------+
+        -:  154:
+  5185536:  155:double sigmoid(double x) {
+  5185536:  156:    return 1.0 / (1.0 + exp(-x));
+        -:  157:}
+        -:  158:
+        -:  159:// +------------------------------+
+        -:  160:// | Forward process - Perceptron |
+        -:  161:// +------------------------------+
+        -:  162:
+      512:  163:void perceptron() {
+    66048:  164:    for (int i = 1; i <= n2; ++i) {
+    65536:  165:		in2[i] = 0.0;
+    65536:  166:	}
+        -:  167:
+  5120512:  168:    for (int i = 1; i <= n3; ++i) {
+  5120000:  169:		in3[i] = 0.0;
+  5120000:  170:	}
+        -:  171:
+   401920:  172:    for (int i = 1; i <= n1; ++i) {
+ 51781632:  173:        for (int j = 1; j <= n2; ++j) {
+ 51380224:  174:            in2[j] += out1[i] * w1[i][j];
+ 51380224:  175:		}
+   401408:  176:	}
+        -:  177:
+    66048:  178:    for (int i = 1; i <= n2; ++i) {
+    65536:  179:		out2[i] = sigmoid(in2[i]);
+    65536:  180:	}
+        -:  181:
+    66048:  182:    for (int i = 1; i <= n2; ++i) {
+655425536:  183:        for (int j = 1; j <= n3; ++j) {
+655360000:  184:            in3[j] += out2[i] * w2[i][j];
+655360000:  185:		}
+    65536:  186:	}
+        -:  187:
+  5120512:  188:    for (int i = 1; i <= n3; ++i) {
+  5120000:  189:		out3[i] = sigmoid(in3[i]);
+  5120000:  190:	}
+      512:  191:}
+        -:  192:
+        -:  193:// +---------------+
+        -:  194:// | Norm L2 error |
+        -:  195:// +---------------+
+        -:  196:
+      514:  197:double square_error(){
+      514:  198:    double res = 0.0;
+  5140514:  199:    for (int i = 1; i <= n3; ++i) {
+  5140000:  200:        res += (out3[i] - expected[i]) * (out3[i] - expected[i]);
+  5140000:  201:	}
+      514:  202:    res *= 0.5;
+      514:  203:    return res;
+        -:  204:}
+        -:  205:
+        -:  206:// +----------------------------+
+        -:  207:// | Back Propagation Algorithm |
+        -:  208:// +----------------------------+
+        -:  209:
+      512:  210:void back_propagation() {
+        -:  211:    double sum;
+        -:  212:
+  5120512:  213:    for (int i = 1; i <= n3; ++i) {
+  5120000:  214:        theta3[i] = out3[i] * (1 - out3[i]) * (expected[i] - out3[i]);
+  5120000:  215:	}
+        -:  216:
+    66048:  217:    for (int i = 1; i <= n2; ++i) {
+    65536:  218:        sum = 0.0;
+655425536:  219:        for (int j = 1; j <= n3; ++j) {
+655360000:  220:            sum += w2[i][j] * theta3[j];
+655360000:  221:		}
+    65536:  222:        theta2[i] = out2[i] * (1 - out2[i]) * sum;
+    65536:  223:    }
+        -:  224:
+    66048:  225:    for (int i = 1; i <= n2; ++i) {
+655425536:  226:        for (int j = 1; j <= n3; ++j) {
+655360000:  227:            delta2[i][j] = (learning_rate * theta3[j] * out2[i]) + (momentum * delta2[i][j]);
+655360000:  228:            w2[i][j] += delta2[i][j];
+655360000:  229:        }
+    65536:  230:	}
+        -:  231:
+   401920:  232:    for (int i = 1; i <= n1; ++i) {
+ 51781632:  233:        for (int j = 1 ; j <= n2 ; j++ ) {
+ 51380224:  234:            delta1[i][j] = (learning_rate * theta2[j] * out1[i]) + (momentum * delta1[i][j]);
+ 51380224:  235:            w1[i][j] += delta1[i][j];
+ 51380224:  236:        }
+   401408:  237:	}
+      512:  238:}
+        -:  239:
+        -:  240:// +-------------------------------------------------+
+        -:  241:// | Learning process: Perceptron - Back propagation |
+        -:  242:// +-------------------------------------------------+
+        -:  243:
+        1:  244:int learning_process() {
+      785:  245:    for (int i = 1; i <= n1; ++i) {
+   101136:  246:        for (int j = 1; j <= n2; ++j) {
+   100352:  247:			delta1[i][j] = 0.0;
+   100352:  248:		}
+      784:  249:	}
+        -:  250:
+      129:  251:    for (int i = 1; i <= n2; ++i) {
+  1280128:  252:        for (int j = 1; j <= n3; ++j) {
+  1280000:  253:			delta2[i][j] = 0.0;
+  1280000:  254:		}
+      128:  255:	}
+        -:  256:
+      513:  257:    for (int i = 1; i <= epochs; ++i) {
+      512:  258:        perceptron();
+      512:  259:        back_propagation();
+      512:  260:        if (square_error() < epsilon) {
+    #####:  261:			return i;
+        -:  262:		}
+      512:  263:    }
+        1:  264:    return epochs;
+        1:  265:}
+        -:  266:
+        -:  267:// +--------------------------------------------------------------+
+        -:  268:// | Reading input - gray scale image and the corresponding label |
+        -:  269:// +--------------------------------------------------------------+
+        -:  270:
+        1:  271:void input() {
+        -:  272:	// Reading image
+        -:  273:    char number;
+       29:  274:    for (int j = 1; j <= height; ++j) {
+      812:  275:        for (int i = 1; i <= width; ++i) {
+      784:  276:            image.read(&number, sizeof(char));
+      784:  277:            if (number == 0) {
+      618:  278:				d[i][j] = 0; 
+      618:  279:			} else {
+      166:  280:				d[i][j] = 1;
+        -:  281:			}
+      784:  282:        }
+       28:  283:	}
+        -:  284:	
+        1:  285:	cout << "Image:" << endl;
+       29:  286:	for (int j = 1; j <= height; ++j) {
+      812:  287:		for (int i = 1; i <= width; ++i) {
+      784:  288:			cout << d[i][j];
+      784:  289:		}
+       28:  290:		cout << endl;
+       28:  291:	}
+        -:  292:
+       29:  293:    for (int j = 1; j <= height; ++j) {
+      812:  294:        for (int i = 1; i <= width; ++i) {
+      784:  295:            int pos = i + (j - 1) * width;
+      784:  296:            out1[pos] = d[i][j];
+      784:  297:        }
+       28:  298:	}
+        -:  299:
+        -:  300:	// Reading label
+        1:  301:    label.read(&number, sizeof(char));
+    10001:  302:    for (int i = 1; i <= n3; ++i) {
+    10000:  303:		expected[i] = 0.0;
+    10000:  304:	}
+        1:  305:    expected[number + 1] = 1.0;
+        -:  306:    
+        1:  307:    cout << "Label: " << (int)(number) << endl;
+        1:  308:}
+        -:  309:
+        -:  310:// +------------------------+
+        -:  311:// | Saving weights to file |
+        -:  312:// +------------------------+
+        -:  313:
+        1:  314:void write_matrix(string file_name) {
+        1:  315:    ofstream file(file_name.c_str(), ios::out);
+        -:  316:	
+        -:  317:	// Input layer - Hidden layer
+      785:  318:    for (int i = 1; i <= n1; ++i) {
+   101136:  319:        for (int j = 1; j <= n2; ++j) {
+   100352:  320:			file << w1[i][j] << " ";
+   100352:  321:		}
+      784:  322:		file << endl;
+      784:  323:    }
+        -:  324:	
+        -:  325:	// Hidden layer - Output layer
+      129:  326:    for (int i = 1; i <= n2; ++i) {
+  1280128:  327:        for (int j = 1; j <= n3; ++j) {
+  1280000:  328:			file << w2[i][j] << " ";
+  1280000:  329:		}
+      128:  330:        file << endl;
+      128:  331:    }
+        -:  332:	
+        1:  333:	file.close();
+        1:  334:}
+        -:  335:
+        -:  336:// +--------------+
+        -:  337:// | Main Program |
+        -:  338:// +--------------+
+        -:  339:
+        1:  340:int main(int argc, char *argv[]) {
+        1:  341:	about();
+        -:  342:	
+        1:  343:    report.open(report_fn.c_str(), ios::out);
+        1:  344:    image.open(training_image_fn.c_str(), ios::in | ios::binary); // Binary image file
+        1:  345:    label.open(training_label_fn.c_str(), ios::in | ios::binary ); // Binary label file
+        -:  346:
+        -:  347:	// Reading file headers
+        -:  348:    char number;
+       17:  349:    for (int i = 1; i <= 16; ++i) {
+       16:  350:        image.read(&number, sizeof(char));
+       16:  351:	}
+        9:  352:    for (int i = 1; i <= 8; ++i) {
+        8:  353:        label.read(&number, sizeof(char));
+        8:  354:	}
+        -:  355:		
+        -:  356:	// Neural Network Initialization
+        1:  357:    init_array();
+        -:  358:    
+        2:  359:    for (int sample = 1; sample <= nTraining; ++sample) {
+        1:  360:        cout << "Sample " << sample << endl;
+        -:  361:        
+        -:  362:        // Getting (image, label)
+        1:  363:        input();
+        -:  364:		
+        -:  365:		// Learning process: Perceptron (Forward procedure) - Back propagation
+        1:  366:        int nIterations = learning_process();
+        -:  367:
+        -:  368:		// Write down the squared error
+        1:  369:		cout << "No. iterations: " << nIterations << endl;
+        1:  370:        printf("Error: %0.6lf\n\n", square_error());
+        1:  371:        report << "Sample " << sample << ": No. iterations = " << nIterations << ", Error = " << square_error() << endl;
+        -:  372:		
+        -:  373:		// Save the current network (weights)
+        1:  374:		if (sample % 100 == 0) {
+    #####:  375:			cout << "Saving the network to " << model_fn << " file." << endl;
+    #####:  376:			write_matrix(model_fn);
+    #####:  377:		}
+        1:  378:    }
+        -:  379:	
+        -:  380:	// Save the final network
+        1:  381:    write_matrix(model_fn);
+        -:  382:
+        1:  383:    report.close();
+        1:  384:    image.close();
+        1:  385:    label.close();
+        -:  386:    
+        1:  387:    return 0;
+    #####:  388:}

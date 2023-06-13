@@ -1,0 +1,83 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 73.08      7.01     7.01      512     0.01     0.01  back_propagation()
+ 26.41      9.54     2.53      512     0.00     0.00  perceptron()
+  0.42      9.58     0.04        1     0.04     0.04  init_array()
+  0.10      9.59     0.01      514     0.00     0.00  square_error()
+  0.10      9.60     0.01        1     0.01     9.56  learning_process()
+  0.00      9.60     0.00  5185536     0.00     0.00  sigmoid(double)
+  0.00      9.60     0.00        2     0.00     0.00  std::operator|(std::_Ios_Openmode, std::_Ios_Openmode)
+  0.00      9.60     0.00        1     0.00     0.00  _GLOBAL__sub_I_w1
+  0.00      9.60     0.00        1     0.00     0.00  write_matrix(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)
+  0.00      9.60     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00      9.60     0.00        1     0.00     0.00  about()
+  0.00      9.60     0.00        1     0.00     0.00  input()
+
+			Call graph
+
+
+granularity: each sample hit covers 2 byte(s) for 0.10% of 9.60 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]    100.0    0.00    9.60                 main [1]
+                0.01    9.55       1/1           learning_process() [2]
+                0.04    0.00       1/1           init_array() [5]
+                0.00    0.00       2/514         square_error() [6]
+                0.00    0.00       2/2           std::operator|(std::_Ios_Openmode, std::_Ios_Openmode) [14]
+                0.00    0.00       1/1           about() [18]
+                0.00    0.00       1/1           input() [19]
+                0.00    0.00       1/1           write_matrix(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) [16]
+-----------------------------------------------
+                0.01    9.55       1/1           main [1]
+[2]     99.6    0.01    9.55       1         learning_process() [2]
+                7.01    0.00     512/512         back_propagation() [3]
+                2.53    0.00     512/512         perceptron() [4]
+                0.01    0.00     512/514         square_error() [6]
+-----------------------------------------------
+                7.01    0.00     512/512         learning_process() [2]
+[3]     73.0    7.01    0.00     512         back_propagation() [3]
+-----------------------------------------------
+                2.53    0.00     512/512         learning_process() [2]
+[4]     26.4    2.53    0.00     512         perceptron() [4]
+                0.00    0.00 5185536/5185536     sigmoid(double) [13]
+-----------------------------------------------
+                0.04    0.00       1/1           main [1]
+[5]      0.4    0.04    0.00       1         init_array() [5]
+-----------------------------------------------
+                0.00    0.00       2/514         main [1]
+                0.01    0.00     512/514         learning_process() [2]
+[6]      0.1    0.01    0.00     514         square_error() [6]
+-----------------------------------------------
+                0.00    0.00 5185536/5185536     perceptron() [4]
+[13]     0.0    0.00    0.00 5185536         sigmoid(double) [13]
+-----------------------------------------------
+                0.00    0.00       2/2           main [1]
+[14]     0.0    0.00    0.00       2         std::operator|(std::_Ios_Openmode, std::_Ios_Openmode) [14]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [25]
+[15]     0.0    0.00    0.00       1         _GLOBAL__sub_I_w1 [15]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [17]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[16]     0.0    0.00    0.00       1         write_matrix(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) [16]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I_w1 [15]
+[17]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [17]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[18]     0.0    0.00    0.00       1         about() [18]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[19]     0.0    0.00    0.00       1         input() [19]
+-----------------------------------------------
+
+Index by function name
+
+  [15] _GLOBAL__sub_I_w1      [16] write_matrix(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) [18] about()
+   [5] init_array()            [3] back_propagation()     [19] input()
+   [4] perceptron()            [2] learning_process()     [13] sigmoid(double)
+   [6] square_error()         [17] __static_initialization_and_destruction_0(int, int) [14] std::operator|(std::_Ios_Openmode, std::_Ios_Openmode)

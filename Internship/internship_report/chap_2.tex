@@ -1,0 +1,54 @@
+% Chapter Template
+
+\chapter{Methodology} % Main chapter title
+
+\label{Chapter 2} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter 2. \emph{Methodology}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+
+\section{Github API Server}
+
+In order to make an API, it is very important to have a clear idea on what the API has to do. What the inputs are, what the outputs are, what are the formats of the output, what is the maximum expected latency possible, required security measures etc. The Github API server required a total of 19 functions, each of which had a different kinds of inputs and outputs. Some of them required a JSON array output while some others required a boolean. In our case these were the objectives to be accomplished.
+\begin{description}
+\item[$\bullet$] Inputs - Depending on the function, the inputs belonged to one / many from the list of Github organization name, repository name, permission type, collaborator name etc
+\item[$\bullet$] Outputs - The outputs were mainly of 2 types, JSON array for GET queries obtained back from Github or boolean indicating success / failure of update / delete operations.
+\item[$\bullet$] Maximum latency possible - We were given a barrier of a maximum of 3 seconds.
+\item[$\bullet$] Secure storage for credentials - Since this is an API which has to communicate with Github, we had to use personal access tokens. This has to be stored in a secure location so that it can be obtained whenever this API server starts, i.e during run time.
+\end{description}
+
+Once we have obtained all these information we can start to decide the implementation details of our API server.
+
+\subsection{API Framework}
+The most suitable framework, which suits our needs was the spring boot framework in JAVA. We decided to go with a Maven build.
+
+
+\subsection{Query framework}
+Some of the functionalities of the API involved getting information from Github. Github provides support for GraphQL API queries for obtaining information from Github. We decided to go with this instead of tradition HTTP Get query as it is the new norm supported by Github for GET requests and in a stretch we can get upto 100 items for a query.
+
+\subsection{Security}
+The connection to be established with Github was authenticated using Personal Access Tokens or PATs. It is not advisable to store PATs in the source code as it is a security risk. We decided to go with Azure key vaults to obtain the secrets during run time from Azure which is a safer practice.
+
+\subsection{Logging}
+We decided to go with log4j v2, as this is a simple logger for Java builds and can also support rolling log updates with a size cap on each of the log files and can automatically compress the older files to create archives.
+
+\subsection{Update framework}
+For all write related operations such as updates, deletes etc we decided to go with traditional HTTP PUT, PATCH, POST, DELETE methods.
+
+\section{Github Runner}
+Since the runner is made for another internal organization, they provided us information on the packages that they require on their runner. Now we had to create an image in which the github runner resides and host it in the cloud so that the organization can access it to provide it with workflows which it has to run.
+
+\subsection{Dockerfile}
+First we have to create the Dockerfile which contains all the commands needed to build the final image, including the base image, package installation, environment setting's modification etc.
+
+\subsection{Building Image}
+We decided to use Docker to build the image as it is the default norm in this domain.
+
+\subsection{Storing Image}
+We decided to use Azure container registry to store the images built so that they are always available for deployments to AKS.
+
+\subsection{Deployment}
+We decided to go with Azure Kubernetes Services or AKS, for our deployments.

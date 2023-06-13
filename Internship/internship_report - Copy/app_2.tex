@@ -1,0 +1,216 @@
+\chapter{Code Snippets - Github Runner} 
+\label{AppendixB} 
+
+\lhead{Appendix B. \emph{Code Snippets - Github Runner}} 
+
+Dockerfile
+\begin{lstlisting}[breaklines]
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+ENV chocolateyUseWindowsCompression false
+ENV GITHUB_PERSONAL_TOKEN ""
+ENV GITHUB_OWNER ""
+ENV GITHUB_RUNNER_GROUP = ""
+ENV GITHUB_RUNNER_LABELS = ""
+RUN powershell -Command \
+        iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')); \#        choco feature disable --name showDownloadProgress
+
+RUN choco install visualstudio2019buildtools -y
+RUN choco install visualstudio2019community -y
+RUN choco install openjdk -y
+RUN choco install visualstudio2019-workload-xamarinbuildtools -y
+RUN choco install microsoft-build-tools -y
+RUN choco install visualstudio2019enterprise --norestart -y 
+RUN choco install windows-sdk-8.1 -y
+
+RUN powershell (new-object System.Net.WebClient).Downloadfile('http://javadl.oracle.com/webapps/download/AutoDL?BundleId=210185', 'C:\jre-8u91-windows-x64.exe')
+RUN powershell start-process -filepath C:\jre-8u91-windows-x64.exe -passthru -wait -argumentlist "/s,INSTALLDIR=c:\Java\jre1.8.0_91,/L,install64.log"
+RUN del C:\jre-8u91-windows-x64.exe
+
+CMD [ "c:\\Java\\jre1.8.0_91\\bin\\java.exe", "-version"]
+
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';$ProgressPreference='silentlyContinue';"]
+ADD https://aka.ms/vs/16/release/vs_buildtools.exe C:\TEMP\vs_buildtools.exe
+RUN powershell -Command \
+        Invoke-WebRequest 'https://aka.ms/vs/16/release/vs_community.exe' -OutFile 'c\:TEMP\vs_community.exe' -UseBasicParsing
+#RUN & "C:TEMP\vs_community.exe" --add Microsoft.VisualStudio.Workload.NetWeb --quiet --wait --norestart --noUpdateInstaller | Out-Default
+
+# Install .NET 4.8
+RUN curl -fSLo dotnet-framework-installer.exe https://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/abd170b4b0ec15ad0222a809b761a036/ndp48-x86-x64-allos-enu.exe `
+    && .\dotnet-framework-installer.exe /q `
+    && del .\dotnet-framework-installer.exe `
+    && powershell Remove-Item -Force -Recurse ${Env:TEMP}\*
+
+# Apply latest patch
+RUN curl -fSLo patch.msu http://download.windowsupdate.com/c/msdownload/update/software/secu/2019/09/windows10.0-kb4514358-x64_b93fca9a74bb0e75ba9e878dd5f2fc537b92a32b.msu `
+    && mkdir patch `
+    && expand patch.msu patch -F:* `
+    && del /F /Q patch.msu `
+    && DISM /Online /Quiet /Add-Package /PackagePath:C:\patch\Windows10.0-kb4514358-x64.cab `
+    && rmdir /S /Q patch
+
+# ngen .NET Fx
+ENV COMPLUS_NGenProtectedProcess_FeatureEnabled 0
+RUN \Windows\Microsoft.NET\Framework64\v4.0.30319\ngen uninstall "Microsoft.Tpm.Commands, Version=10.0.0.0, Culture=Neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=amd64" `
+    && \Windows\Microsoft.NET\Framework64\v4.0.30319\ngen update `
+    && \Windows\Microsoft.NET\Framework\v4.0.30319\ngen update
+
+# Set PowerShell as default shell
+SHELL [ "powershell", "-NoProfile", "-Command" ]
+RUN $ProgressPreference = 'SilentlyContinue'
+
+# Install PS Modules in C:\Modules
+RUN New-Item -ItemType Directory -Name Modules -Path c:\ -Force | Out-Null ; `
+    Install-PackageProvider -Name NuGet -Force | Out-Null; `
+    Save-Module Az -Path c:\Modules -Confirm:$false | Out-Null; `
+    Save-Module Pester -Path c:\Modules -Confirm:$false | Out-Null; `
+    Save-Module PSScriptAnalyzer -Path c:\Modules -Confirm:$false | Out-Null
+    # Add C:\Modules to PSModulePatch environment variable
+RUN $ModulesPath = [environment]::GetEnvironmentVariable('PSModulePath', [System.EnvironmentVariableTarget]::Machine) ; `
+    $NewModulesPath = 'C:\Modules;' + $ModulesPath ; `
+    [environment]::SetEnvironmentVariable('PSModulePath', $NewModulesPath, [System.EnvironmentVariableTarget]::Machine)
+
+# Install Chocolately
+ENV chocolateyUseWindowsCompression false
+RUN Invoke-WebRequest -Uri 'https://chocolatey.org/install.ps1' -OutFile ./choco-install.ps1 ; `
+    .\\choco-install.ps1 | Out-Null ; `
+    choco feature disable --name showDownloadProgress ; `
+    Remove-Item ".\choco-install.ps1"
+
+#RUN choco install openjdk -y
+RUN choco install jdk8 -y
+RUN choco install windows-sdk-8.1 -y
+RUN choco install dotnetcore-sdk --version=2.1.300 -y
+RUN choco install dotnetcore --version=2.1.0 -y
+RUN choco install dotnetcore-runtime --version=2.1.0 -y
+
+# Install Visual Studio Test Platform (vstest)
+RUN Register-PackageSource -Name MyNuGet -Location https://www.nuget.org/api/v2 -ProviderName NuGet | Out-Null ; `
+    Install-Package Microsoft.TestPlatform -Force | Out-Null ; `
+    setx vstest 'c:\Program Files\PackageManagement\NuGet\Packages\Microsoft.TestPlatform.16.2.0\tools\net451\Common7\IDE\Extensions\TestPlatform'
+
+# Install Visual Studio with dotNet workload
+RUN Invoke-WebRequest "https://aka.ms/vs/16/release/vs_enterprise.exe" -OutFile ".\vs_enterprise.exe" -UseBasicParsing ; `
+    Start-Process .\vs_enterprise.exe -ArgumentList '--add Microsoft.VisualStudio.Workload.NetWeb --quiet --norestart' -Wait ; `
+    Remove-Item ".\vs_enterprise.exe" ; `
+    setx visualstudio 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin'
+    # Update PATH environment variable
+RUN $machinePath = [environment]::GetEnvironmentVariable('path', [System.EnvironmentVariableTarget]::Machine) ; `
+    $newMachinePath = 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin;' + $machinePath ; `
+    [environment]::SetEnvironmentVariable('path', $newMachinePath, [System.EnvironmentVariableTarget]::Machine)
+    
+RUN choco install webdeploy -y
+
+# Install .NET Framework 4.6 Targeting Pack
+RUN Invoke-WebRequest "https://go.microsoft.com/fwlink/?linkid=2099469" -OutFile ".\ndp46-targetingpack-kb3045566.exe" -UseBasicParsing ; `
+    Start-Process .\ndp46-targetingpack-kb3045566.exe -ArgumentList '/quiet /norestart' -Wait ; `
+    Remove-Item ".\ndp46-targetingpack-kb3045566.exe"
+
+ RUN choco install python3 -y
+ RUN choco install pip --allow-empty-checksums -y
+ RUN choco install azure-cli -y
+ RUN choco install maven -y
+ RUN choco install googlechrome -y
+ RUN choco install powershell -y
+ RUN choco install reportgenerator.portable -y
+ RUN choco install opencover.portable -y
+
+# Clean up temp directory
+# RUN Remove-Ie -Recurse ${Env:TEMP}\*
+
+WORKDIR /github
+
+RUN mkdir actions-runner; cd actions-runner
+RUN Invoke-WebRequest -Uri https://github.com/actions/runner/releases/download/v2.279.0/actions-runner-win-x64-2.279.0.zip -OutFile C:\github\actions-runner\actions-runner-win-x64-2.279.0.zip
+RUN Add-Type -AssemblyName System.IO.Compression.FileSystem 
+ENV GHTEMP = actions-runner-win-x64-2.279.0.zip
+RUN [System.IO.Compression.ZipFile]::ExtractToDirectory("$PWD/$GHTEMP", "$PWD")
+RUN echo $PWD
+RUN cd C:\github\actions-runner
+RUN dir
+RUN powershell.exe Expand-Archive -LiteralPath C:\github\actions-runner\actions-runner-win-x64-2.279.0.zip C:\github\actions-runner
+COPY start.ps1 .
+
+#CMD java -version
+
+#CMD dir 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Team Tools\Dynamic Code Coverage Tools\'
+
+CMD powershell .\start.ps1
+\end{lstlisting}
+
+Deployment.yaml:
+\begin{lstlisting}[breaklines]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: runner-windows
+  namespace: github-runner-test-sj
+  labels:
+    app: runner-windows
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner-windows
+  template:
+    metadata:
+      labels:
+        app: runner-windows
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": windows
+      containers:
+      - name: runner-windows
+        image: evuedsoacr.azurecr.io/amd-it/github-runners-windows:17503
+        env:
+        - name: GITHUB_OWNER
+          value: amd-trial
+        - name: GITHUB_RUNNER_GROUP
+          value: windows-runners-test-sj
+        - name: GITHUB_RUNNER_LABELS
+          value: Windows
+        - name: RUNNER_WORKDIR
+          value: _works
+        - name: GITHUB_PERSONAL_TOKEN 
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: GITHUB_PERSONAL_TOKEN
+        resources:
+          limits:
+            cpu: 8
+            memory: 8192M
+          requests:
+            cpu: 4
+            memory: 4096M
+      
+
+           
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: runner-windows-hpa
+  namespace: github-runner-test-sj
+spec:
+  maxReplicas: 10 # define max replica count
+  minReplicas: 2  # define min replica count
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: runner-windows
+  targetCPUUtilizationPercentage: 50 # target CPU utilization
+\end{lstlisting}
+
+Secret.yaml
+\begin{lstlisting}[breaklines]
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-secret
+  namespace: github-runner-test-sj
+type: Opaque
+stringData:
+  GITHUB_PERSONAL_TOKEN: "PAT"
+\end{lstlisting}

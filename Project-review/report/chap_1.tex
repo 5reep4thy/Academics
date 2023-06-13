@@ -1,0 +1,39 @@
+\chapter{Introduction} 
+\label{Chapter1} 
+\lhead{Chapter 1. \emph{Introduction}} 
+\section{Background}
+Human language is astoundingly complex and diverse. We express ourselves in infinite ways, both verbally and in writing. Not only are there hundreds of languages and dialects, but within each language is a unique set of grammar and syntax rules, terms and slang. When we write, we often misspell or abbreviate words, or omit punctuation. When we speak, we have regional accents, and we mumble, stutter and borrow terms from other languages.
+
+While supervised and unsupervised learning, and specifically deep learning, are now widely used for modeling human language, there’s also a need for syntactic and semantic understanding and domain expertise that are not necessarily present in these machine learning approaches. NLP is important because it helps resolve ambiguity in language and adds useful numeric structure to the data for many downstream applications, such as speech recognition or text analytics.\cite{Typesoftransferlearning}
+
+\subsection{Natural Language Processing}
+Natural language processing or NLP is a field of computer science and AI dealing with the interactions between computers and human language. The machine must be mad capable of "understanding" the context and even be able to predict next parts of language, also known as language modeling.
+
+
+\subsection{Transfer Learning}
+Transfer Learning or TL is a paradigm in machine learning that focuses on storing knowledge gained while solving one problem and applying it to a different but related problem. This is a really important paradigm specifically in NLP since NLP models tend to be really large and also require large volumes of training data trained over multiple epochs. Training them from scratch would require an enormous amount of resources and time. Transfer learning can help greatly in NLP because in language processing it makes sense to use knowledge learnt from performing tasks on a particular objective and using it on a different objective as a lot of information can be transferred. Transfer learning is categorised into mainly 3 types.
+
+\begin{description}
+\item[$\bullet$] Positive Transfer - When learning in one situation facilitates learning in another situation, it is known as a positive transfer. For example, skills in playing the violin facilitate learning to play the piano. Knowledge of mathematics facilitates to learn physics in a better way. Driving a scooter facilitates driving a motorbike.
+
+\item[$\bullet$] Negative Transfer - When learning of one task makes the learning of another task harder- it is known as a negative transfer. For example, speaking Telugu hindering the learning of Malayalam.
+
+\item[$\bullet$] Neutral Transfer - When learning of one activity neither facilitates or hinders the learning of another task, it is a case of neutral transfer. It is also called as zero transfer.
+
+\end{description}
+
+
+\subsection{Language Modeling}
+Language modeling or LM is the use of various methods to determine the probabilities of finding out the subsequent part of language given some contextual information. Some of the major domains that use language modeling is translation, question answering etc. Usually they are treated as regressive tasks wherein we use the information of the context and the language generated so far to obtain the next parts of language rather than just using the context given to us.
+
+Language modeling can help in simplifying a wide variety of day to day tasks, for example speech recognition.  Smart speakers, such as Alexa, use automatic speech recognition (ASR) mechanisms for translating the speech into text. It translates the spoken words into text and between this translation, the ASR mechanism analyzes the intent/sentiments of the user by differentiating between the words. For example, analyzing homophone phrases such as “Let her” or “Letter”, “But her” “Butter”. Machine translation is also a crucial part of language modeling.\cite{langmodel}
+
+
+\section{Motivation}
+Natural language processing is a very important field in the life of humans now adays, especially after the newer advent of models such as the transformers have helped increased the scores in various benchmarks close to that of humans. There are a wide variety of tasks within NLP that can be looked at and further improved. One of the most important tasks is in the discriminative fields within NLP. In this field of NLP, most of the tasks involve dealing with language in a discrete sense. For example given a sentence, find the possible next sentence given "n" options; Or given a context find the summary of the context; Or given a chat find the sentiment from a list of common sentiments which the chat belongs to etc.
+
+Research in natural language understanding and textual inference has advanced considerably in recent years, resulting in powerful models that are able to read and understand texts, even outperforming humans in some cases. However, it remains challenging to answer questions that go beyond the texts themselves, requiring the use of additional commonsense knowledge.
+
+\section{Objective}
+Given a context find the most probable next sentence which can logically follow from the context using some form of natural language processing.
+

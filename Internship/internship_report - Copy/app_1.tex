@@ -1,0 +1,85 @@
+\chapter{Code Snippets - Github API server} 
+\label{AppendixA} 
+
+\lhead{Appendix A. \emph{Github API Server}} 
+
+HTTP-Post() function
+\begin{lstlisting}[breaklines]
+CloseableHttpResponse Execute_HTTP_POST(String api_url, String json_form) {
+        CloseableHttpResponse response = null;
+        CloseableHttpClient client = null;
+        try {
+            HttpPost httpPost = new HttpPost(api_url);
+            httpPost.addHeader("Authorization", "token " + PAT);
+            httpPost.addHeader("Content-Type", "application/json");
+            StringEntity params = new StringEntity(json_form);
+            httpPost.setEntity(params);
+            client = HttpClients.createDefault();
+            response = client.execute(httpPost);
+            LOG.debug("Return from httpPost request - " + response);                      
+            LOG.info("HTTP post finished successfully");
+        }
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } 
+        catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } 
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+   
+        return response;
+    }
+\end{lstlisting}
+
+ExeGraphql() Function
+\begin{lstlisting}[breaklines]
+public JSONObject exeGrapql(JSONObject jsonObj) {
+        //https://www.tutorialspoint.com/how-to-read-parse-json-array-using-java
+        Instant start = Instant.now();
+        CloseableHttpClient client = null;
+        CloseableHttpResponse response = null;
+
+        client = HttpClients.createDefault();
+        JSONObject rtnObj = new JSONObject();
+
+        HttpPost httpPost = new HttpPost("https://api.github.com/graphql");
+        httpPost.addHeader("Authorization", "Bearer " + PAT);
+        httpPost.addHeader("Accept", "application/json");
+        httpPost.addHeader("Content-Type", "application/json");
+
+        try {
+            StringEntity entity = new StringEntity(jsonObj.toString());
+            httpPost.setEntity(entity);
+            response = client.execute(httpPost);
+
+            System.out.println(response.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            String line = null;
+            StringBuilder builder = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+
+            JSONParser parser = new JSONParser();
+            Object obj = parser.parse(builder.toString());
+            rtnObj = (JSONObject) obj;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Instant end = Instant.now();
+        LOG.info("Time taken for exeGraphql = " + Duration.between(start, end));
+        return rtnObj;
+    }
+\end{lstlisting}

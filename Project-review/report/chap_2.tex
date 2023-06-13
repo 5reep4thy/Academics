@@ -1,0 +1,27 @@
+% Chapter Template
+
+\chapter{Methodology} % Main chapter title
+
+\label{Chapter2} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter 2. \emph{Methodology}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+There are a variety of methods which yield good results in the fields of non-autoregressive tasks. Let us look at some of them
+\section{Transformers}
+A transformer is a deep learning model that adopts the mechanism of self-attention to convert one sequence to another, or in other words it is a sequence to sequence model. The model consists of an encoder and a decoder. The encoder takes the input sequence and converts into embedding of a particular dimension. This abstract embeddings are taken forwards by the decoder to obtain an output sequence. This particular method can be used of machine translation, summarization etc.\cite{DBLP:journals/corr/VaswaniSPUJGKP17}
+
+\subsection{BERT}
+Bidirectional Encoder Representations from Transformers or BERT\cite{DBLP:journals/corr/abs-1810-04805} is a transformer based model developed by Google for NLP application that is still widely used. It had created state of the art results when it was launched in variety of NLP tasks such as question answering, named entity recognition, natural language inference etc. Usually BERT models and the ones derived from BERT usually output a class label or a span on text.
+
+There are other generative models such as T5, which has better capabilities for generative tasks.
+
+\subsection{T5}
+Text-to-Text Transfer Transformer or T5\cite{DBLP:journals/corr/abs-1910-10683} aims to convert any and all task to generative tasks and can give satisfactory output for a variety of tasks such as machine translation, classification tasks, regression tasks etc. T5 was trained on the common web crawl or c4 dataset to train it on 750GB of clean English text. The T5 model uses the transformers as the building blocks with each encoder block containing a self-attention layers and a feed forward layer.
+
+
+\section{Solving Commonsense inference tasks}
+Inorder to solve various commonsense inference tasks we can go with any of the above mentioned popular methods. Obtaining abstract high dimensional representations of tokens given in the input text is the most difficult part. This part is natural for the usage of BERT as it is training for generative powerful embeddings. We can try exploring the embedding powers of T5, by only using the encoder of T5 rather than using T5 as a generation model as described in ENCT5 \cite{EncT5Intro}.
+

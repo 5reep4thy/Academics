@@ -1,0 +1,40 @@
+\chapter{Introduction} 
+\label{Chapter1} 
+\lhead{Chapter 1. \emph{Introduction}} 
+
+\section{Background}
+Covid has hit the world hard, leaving employees and other people no choice but to work from home. Video calls has never been more important. Usually video calls are very monotonous whether it be for the purpose of business or learning. People who are in a bad mood usually stay in the bad mood throughout the meet. The Fun virtual Cam can help alter the monotonicity of the meet, by introducing a variable background for a live video, according to their mood captured via their speech. If they are in a bad mood, we introduce a suitable background for the person which would prompt him to change his speech mannerism, something that would tell him to cheer up a bit more in an indirect way.
+
+Here is a brief description on the major paradigms of computer science used for this particular project.
+
+\subsection{Speech recognition}
+Speech recognition is an interdisciplinary subfield of computer science and computational linguistics that develops methodologies and technologies that enable the recognition and translation of spoken language into text by computers\cite{SpeechRecognitionDef}
+\subsection{Sentiment analysis}
+Sentiment analysis is the use of natural language processing, text analysis, computational linguistics, and biometrics to systematically identify, extract, quantify, and study affective states and subjective information.\cite{SentimentAnalysisDef}
+\subsection{Multi - threading}
+Multithreading is the ability of a central processing unit (CPU) (or a single core in a multi-core processor) to provide multiple threads of execution concurrently, supported by the operating system.\cite{MultiThreadingDef}
+\subsection{Computer Vision}
+Computer vision is the field that deals with how computers can help understand information given images / video, so as to capture meaningful information from them.
+
+
+\section{Motivation}
+Video is an essential part of our life. We use it for all sorts of purposes, the main one being video conferencing. During video conferencing using some of the major applications currently in our market, we can do all sorts of tweaks to the video like enabling background bluring, background replacement etc. Usually the background is very subjective, each person has his / her choices, and in case they have to change it they go to the settings of the application to go change it. What if the background automatically changes based on the mood of the person? This is the main thought for creating the Fun Virtual Cam.
+
+\section{Objectives of the work}
+The main objectives for the application are:
+\begin{description}
+\item[$\bullet$] Capture the video - From the web camera, we capture frames and display them consecutively as a video.
+
+\item[$\bullet$] Capture the audio - From the microphone, we capture audio.
+
+\item[$\bullet$] Convert audio to text - From the audio captured, we convert it to text.
+
+\item[$\bullet$] Analyse the sentiment from the text - From the text captured from the audio, obtain the sentiments associated in the text.
+
+\item[$\bullet$] Obtain the background images
+
+\item[$\bullet$] Based on the sentiment obtained choose the appropriate background.
+
+\item[$\bullet$] Segment each frame of the video to obtain the foreground and background, and apply the image on the background.
+
+\end{description}

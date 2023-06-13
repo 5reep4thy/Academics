@@ -1,0 +1,89 @@
+% Chapter Template
+
+\chapter{Work Done} % Main chapter title
+
+\label{ChapterX} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter X. \emph{Chapter Title Here}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+The implementation of the audio processing component takes a relatively high amount of time. If both the video processing component and the audio processing component run the same thread, there would be a drastic drop in frame rates. For the aforementioned reason, the application runs on 2 threads. One for the audio processing and one for the video processing.
+
+\section{Video Processing}
+The following packages are used for the video processing.
+\begin{description}
+\item[$\bullet$] cv2
+\item[$\bullet$] cvzone
+\item[$\bullet$] threading
+\item[$\bullet$] time
+\item[$\bullet$] os
+\end{description}
+\subsection{Video capture}
+The frames are obtained from capturing the images from the web camera.
+\begin{lstlisting}[breaklines]
+cam = cv2.VideoCapture(index) 
+#index -> Index of the camera to be used
+img = cam.read()
+#img -> The frame captured from the camera
+\end{lstlisting}
+
+Pseudocode for the video
+\begin{lstlisting}[breaklines]
+while True:
+	img = cam.read()
+	display(img)
+\end{lstlisting}
+
+\subsection{Background detection and removal}
+The background detection and changing it to another image is implemented using the segmentor library of cvzone.
+\begin{lstlisting}[breaklines]
+imgOutput = segmentor.removeBG(img, ImgWithFlag, threshold)
+\end{lstlisting}
+The flag, defines the sentiment values, given by the audio detection thread. Based on the value of the imgWithFlag, a suitable image is chosen for the background.
+
+The frame rate is calculated using the cvzone library function.
+\begin{lstlisting}[breaklines]
+fps = cvzone.FPS()
+\end{lstlisting}
+
+
+
+\section{Audio processing}
+The following packages are used for the audio processing.
+\begin{description}
+\item[$\bullet$] textBlob
+\item[$\bullet$] speech-recognition
+\item[$\bullet$] threading
+\item[$\bullet$] os
+\end{description}
+\subsection{Audio capture}
+The audio is captured via the microphone using the Recognizer from speech-recognition library.
+\begin{lstlisting}[breaklines]
+receiver = speech-reconition.Recognizer()
+with receiver.Microphone(device_index = 0) as source:
+	audio = receiver.listen(source)
+\end{lstlisting}
+
+\subsection{Audio to text}
+The audio is converted to text using the google speech to text recognizer.
+\begin{lstlisting}[breaklines]
+text = receiver.recognize_google(audio)
+\end{lstlisting}
+
+\subsection{Sentiment analysis on text}
+Once the text has been obtained from the audio, we analyse the sentiments with the help of the textBlob library.
+\begin{lstlisting}[breaklines]
+sentimentObject = TextBlob(text)
+polarityOfText = sentimentObject.sentiment.polarity
+\end{lstlisting}
+\subsection{Give sentiment value to Video Processing thread}
+Based on the polarity of text, we change the flag value so that the video processing thread can decide which background to keep.
+\begin{lstlisting}[breaklines]
+if (polarityOfText > 0):
+	flag = 1
+else:
+	flag = 0
+\end{lstlisting}
+

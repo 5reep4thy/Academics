@@ -1,0 +1,63 @@
+% Chapter Template
+
+\chapter{Results and Discussions} % Main chapter title
+
+\label{ChapterX} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter X. \emph{Chapter Title Here}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+
+\section{Github API Server}
+As per our objectives defined, we were able to deliver all the required functionalities in the maximum possible latency limit defined. The various functionalities are:
+\begin{description}
+
+\item[$\bullet$] List admins, given the repository name and the organization name.
+
+\item[$\bullet$] Create a repository given the organization.
+
+\item[$\bullet$] Change the visibility of a repository, given the organization and the repository.
+
+\item[$\bullet$] Update the permissions of an external collaborator , given the collaborator name, permission status, repository name and the organization name.
+
+\item[$\bullet$] Remove a collaborator from a repository, given the collaborator name, the repository name and the organization name.
+
+\item[$\bullet$] Delete a repository, given the repository, given the organization and the repository name.
+
+\item[$\bullet$] List all repositories, given the organization.
+
+\item[$\bullet$] List all the members, given the organization.
+
+\item[$\bullet$] List all outside collaborators, given the repository and the organization.
+
+\item[$\bullet$] Add external collaborator to a repository, given the collaborator name, repository name and the organization name.
+
+\item[$\bullet$] Get the Github login id, given the NTID of a user.
+
+\item[$\bullet$] List all organizations of the enterprise.
+
+\end{description}
+
+These are the list of utility functions.
+\begin{description}
+
+\item[$\bullet$] getPAT() - Fetch the Personal access token from Azure key vault.
+
+\item[$\bullet$] getSAML() - Fetch the list of mapping from Github id to NTID.
+
+\item[$\bullet$] exeGraphql() - Execute a graphql query using HTTP Post request to Github API and retrieve the response.
+
+\item[$\bullet$] Execute-HTTP-POST() - Make a HTTP Post request by adding headers and required JSON body and send it to Github API.
+
+\item[$\bullet$] Execute-HTTP-PUT() - Make a HTTP Put request by adding headers and required JSON body and send it to Github API.
+
+\item[$\bullet$] Execute-HTTP-Patch() - Make a HTTP Patch request by adding headers and required JSON body and send it to Github API.
+
+\item[$\bullet$] Execute-HTTP-DELETE() - Make a HTTP Delete request by adding headers and required JSON body and send it to Github API.
+
+\end{description}
+
+\section{Github Runner}
+As per our objectives defined for the Github Runner, we were able to stand up the runner with the capabilities as requested by various organizations. It is able to successfully listen to jobs and communicate back the result.

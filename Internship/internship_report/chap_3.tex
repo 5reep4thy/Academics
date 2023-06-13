@@ -1,0 +1,336 @@
+% Chapter Template
+
+\chapter{Work Done} % Main chapter title
+
+\label{Chapter 3} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter 3. \emph{Work Done}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+
+\section{Github API Server}
+The entire API server is build in JAVA. In this section we'll go through all the work done categorized into various steps.
+\subsection{Maven build and dependencies}
+As stated before, we decided to go with a Maven build for the Github API server. In a Maven build all dependencies / packages are defined within the pom.xml file. Here are a few of the major dependencies.
+
+\begin{description}
+
+\item[$\bullet$] org.springframework.boot - Java Spring Framework is a popular, open source framework for creating standalone applications that run on the Java Virtual Machine \cite{SpringBootIntro}. It also has support log4j v2, a logging tool as well as support for other useful plugins.
+
+\item[$\bullet$] com.graphql-java - GraphQL is a query language for APIs that allows clients to request limited data they need, making it possible for clients to gather data in a limited number of requests \cite{GraphQLIntro}.
+
+\item[$\bullet$] org.apache.httpcomponents - HTTP components package gives us capabilities of using HTTP requests such as PUT, PATCH, DELETE and POST. Instead of GET we use GraphQL.
+
+\item[$\bullet$] com.azure - The Azure secrets package is used here and it has provision for storing secrets and obtaining them whenever needed from Azure cloud, instead of storing it in the source code itself.
+
+\end{description}
+
+These were some of the basic build decisions that we made.
+Here is a snippet of a dependency from the pom.xml file which contains all of the dependencies.
+
+\begin{lstlisting}[breaklines]
+<dependency>
+      <groupId>com.graphql-java</groupId>
+      <artifactId>graphql-java</artifactId>
+      <version>16.2</version>
+</dependency>
+\end{lstlisting}
+
+\subsection{Utility functions}
+
+\begin{description}
+
+\item[$\bullet$] getPAT() - This is a utility function that fetches the secret PAT used to get information from Github. The secret is stored in Azure secrets. We use the SecretClientBuilder() function from the Azure keyvault class and parse in the Azure url where the key is stored as well as the client secret credentials stored locally to obtain the PAT from Azure so that we can now interact with Github.
+
+\item[$\bullet$] getSAML() - Another utility function that fetches the mapping from Github between the NTID (Unique within AMD) and the name of a person as well as the mapping between the Github unique login id with the NTID and name. This function is implemented by interacting with Github using the GraphQL API provided by Github. The GraphQL query to get the SAML is created and sent to api.github.com, and a JSON object containing all the details is sent back as the response.
+
+
+\end{description}
+
+\subsection{Important variables}
+
+\begin{description}
+
+\item[$\bullet$] PAT - The personal access token returned from getPAT() function
+
+\item[$\bullet$] LOG - The instance of logger class which contains member functions to help in the logging process.
+
+\item[$\bullet$] MAP-NTID-TO-LOGIN - A Hash Map, mapping NTID to Github login id. This is obtained from the getSAML() function.
+
+\end{description}
+These are a few of the major variables.
+
+\subsection{Graphql execution function - exeGraphql()}
+This is a utility function, which takes the graphql query as input and constructs an HTTP post request and sends it using the Github's API. The response contains the output for the query. The function then takes the output and formats in JSON and returns it.
+
+Pseudo code - 
+\begin{lstlisting}[breaklines]
+JSONObject exeGraphql(JSONObject jsonObj) {
+	request = CreateHTTPPostRequest(jsonObj);
+	response = execute(request);
+	json_formatted_response = format_into_json (response);
+	return json_formatted_response;
+	
+}
+\end{lstlisting}
+
+
+\subsection{GET data from Github}
+Using GraphQL we can build queries which we wish to address and send it to the Github API, and we get a response containing the required result. In one response a maximum of 100 items are retrieved. In case our response is bigger we have to create multiple requests and obtain 100 at a time.
+
+Pseudo Code:
+\begin{lstlisting}[breaklines]
+ans = {}
+while (next_page_exists) {
+	page = fetch_page();
+	ans = ans + items_of_page(page);
+	next_page_exists = page.does_next_page_exists();
+}
+\end{lstlisting}
+
+Let's look at a mapping "/SNOW/org/{ORG}/repo/{name}/getadmin". Here we are supposed to fetch the admins of a repo with name - "name" and inside the organization "ORG". Here "ORG" and "name" are PathVariables and is sent by SNOW, the organization for which the API is being built.
+
+Let's go through this function section by section.
+
+\begin{lstlisting}[breaklines]
+@GetMapping("/SNOW/org/{ORG}/repo/{name}/getadmin")
+    public JSONArray list_admins(@PathVariable String ORG, @PathVariable String name) {
+        Instant start = Instant.now();
+        LOG.info("Mapping - http://localhost:8080/SNOW/org/" + ORG + "/repo/" + name + 
+        "/getadmin" );
+        JSONObject graphqlQueryObj = new JSONObject();
+        JSONArray array = new JSONArray();
+        String next_page_exists = "true";
+        String after_suffix = "";
+
+        while (next_page_exists.equals("true")) {           
+            graphqlQueryObj.put("query", "{\n" +
+            "  organization(login: \"" + ORG + "\") {\n" +
+            "    repository(name: \"" + name + "\") {\n" +
+            "      collaborators(first: 100" + after_suffix + ") {\n" +
+            "        totalCount\n" +
+            "        edges {\n" +
+            "          permission\n" +
+            "          node {\n" +
+            "            login\n" +
+            "            name\n" +
+            "          }\n" +
+            "        }\n" +
+            "        pageInfo {\n" +
+            "          endCursor\n" +
+            "          hasNextPage\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}");
+            JSONObject obj3 = new JSONObject();
+            JSONArray temp_array = new JSONArray();
+
+            obj3 = exeGrapql(graphqlQueryObj);
+            LOG.debug("Return from graphql - " + obj3);
+            obj3 = (JSONObject) obj3.get("data");
+            obj3 = (JSONObject) obj3.get("organization");
+            obj3 = (JSONObject) obj3.get("repository");
+            obj3 = (JSONObject) obj3.get("collaborators");
+
+            temp_array = (JSONArray) obj3.get("edges");
+            if (temp_array.size() == 0)
+                break;
+            for (int i = 0; i < temp_array.size(); i++) {
+                JSONObject temp_obj = new JSONObject();
+                temp_obj = (JSONObject) temp_array.get(i);
+                String permission_status = temp_obj.get("permission").toString();
+                if (permission_status.equals("ADMIN")) {
+                    temp_obj = (JSONObject) temp_obj.get("node");
+                    String temp_string = temp_obj.get("login").toString();
+                    array.add(temp_string);
+                }            
+            }
+            obj3 = (JSONObject) obj3.get("pageInfo"); 
+            next_page_exists = obj3.get("hasNextPage").toString();
+            String end_pointer = obj3.get("endCursor").toString();
+            after_suffix = ", after: \"" + end_pointer + "\"";
+
+        }
+        Instant end = Instant.now();
+        LOG.info("Time taken for " + "Mapping - http://localhost:8080/SNOW/org/" + ORG +
+         "/repo/" + name + "/getadmin = " + Duration.between(start, end));
+        return array;
+    }
+\end{lstlisting}
+
+We start this mapping by logging all the details as sent by SNOW. We declare the variables, to store the final JSON array, the loop iterator checker and the "after-suffix" which takes care of the storing the pointer of the last element that we accessed so that we can start querying from the next element onward.
+
+
+Now inside the while loop we construct the graphQL query, depending on what we want to fetch from Github. In this case it is the list of admins, within a repo, within an organization. We use the "after suffix" variable to store the last accessed element's pointer. Then we use the exeGraphql command to obtain the results of the Graphql query contructed, which returns the JSON object sent back from Github.
+
+
+Now we go through the JSON object to get the list of admins and push it into "array" which is what we return from this mapping.
+
+There are 13 such functions, each reponsible for fetching various different information from Github all using the same principle.
+
+\subsection{Update Information functions}
+We saw how we get information using Graphql queries. Now we see how we update information. This is done in the traditional HTTP POST, PUT, DELETE, PATCH request. Let's take a look at one of the functions used to change the permission status of an outside collaborator for a repo within an organization.
+
+Pseudo code:
+
+\begin{lstlisting}[breaklines]
+boolean change_permission(ORG, name, collaborator-name, permission-status) {
+	api_url = "https://api.github.com/repos/" + ORG + "/" + name + "/collaborators/" + 					collaborator_name;
+	response = execute_HTTP_Put(api_url, permissions);
+	return response.status;
+	
+}
+\end{lstlisting}
+
+Here the execute-HTTP-PUT function creates an HTTP PUT request with a JSON body which includes the permission-status and the api-url so that Github can update the new permission status of the collaborator.
+
+Now let's go through this function section by section.
+
+\begin{lstlisting}[breaklines]
+ @GetMapping("/SNOW/org/{ORG}/repo/{name}/oc/add/{collaborator_name}/{permission_status}")
+    public boolean outside_collaborator_read(@PathVariable String ORG, @PathVariable String name, @PathVariable String collaborator_name, @PathVariable String permission_status) {
+        Instant start = Instant.now();
+        LOG.info("Mapping - http://localhost:8080/SNOW/org/" + ORG + "/repo/" + name + "/oc/add/" + collaborator_name + "/" + permission_status);
+        boolean response_bool = false;
+        String api_url = "https://api.github.com/repos/" + ORG + "/" + name + "/collaborators/" + collaborator_name;
+        String permission_string;
+        if (permission_status.equals("read"))
+            permission_string = "pull";
+        else 
+            permission_string = "push";
+        String json_form = "{\"permission\":\"" + permission_string + "\"}";
+        CloseableHttpResponse response = Execute_HTTP_PUT(api_url, json_form);
+        if (response.getStatusLine().getStatusCode() == 201 || response.getStatusLine().getStatusCode() == 204)
+                response_bool = true;
+        Instant end = Instant.now();
+        LOG.info("Time taken for " + "Mapping - http://localhost:8080/SNOW/org/" + ORG + "/repo/" + name + "/oc/add/" + collaborator_name + "/" + permission_status + " = " + Duration.between(start, end));
+        return response_bool;
+        
+    }
+\end{lstlisting}
+
+A total of 6 update functions were created, each for executing a different kind of update in AMD's github database.
+\section{Github Runner}
+The creation of the Github runner can be broken down into 4 parts
+\begin{description}
+
+\item[$\bullet$] Dockerfile creation
+
+\item[$\bullet$] Image creation from Dockerfile
+
+\item[$\bullet$] Uploading the image created to ACR
+
+\item[$\bullet$] Deploying the image stored in ACR to AKS
+
+\end{description}
+
+\subsection{Dockerfile Creation}
+After obtaining the packages that have to be included in the runner as well as the base image, whether Windows or Ubuntu, we can start building the dockerfile.
+
+Here is the pseudo code for the dockerfile
+
+\begin{lstlisting}[breaklines]
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+Install packages and change environment variables as needed
+
+WORKDIR /github
+RUN mkdir actions-runner; cd actions-runner
+RUN Invoke-WebRequest -Uri https://github.com/actions/runner/releases/download/v2.279.0/actions-runner-win-x64-2.279.0.zip -OutFile C:\github\actions-runner\actions-runner-win-x64-2.279.0.zip
+RUN Add-Type -AssemblyName System.IO.Compression.FileSystem 
+ENV GHTEMP = actions-runner-win-x64-2.279.0.zip
+#RUN [System.IO.Compression.ZipFile]::ExtractToDirectory("$PWD/$GHTEMP", "$PWD")
+RUN echo $PWD
+RUN cd C:\github\actions-runner
+RUN dir
+RUN powershell.exe Expand-Archive -LiteralPath C:\github\actions-runner\actions-runner-win-x64-2.279.0.zip C:\github\actions-runner
+COPY start.ps1 .
+CMD powershell .\start.ps1
+\end{lstlisting}
+
+We begin with the base OS, in this case it is windows-servercore. Then we install all the required packages for the image, update the environment variables if required and make sure the image is read for the given needs. Now we install the Github runner to this image. The Github runner is publicly available. We download this, unzip it to get all the libraries and executables, and add it to the image.
+
+Now we define the entry point to the image as "start.ps1" which is a powershell script which takes care of linking the runner to the github organization for which this runner was intended for, as well as start the runner execution.
+
+Here is the psudo code
+
+\begin{lstlisting}[breaklines]
+$registration_url = "https://api.github.com/orgs/${Env:GITHUB_OWNER}/actions/runners/registration-token"
+$payload = curl.exe --request POST "https://api.github.com/orgs/${Env:GITHUB_OWNER}/actions/runners/registration-token" --header "Authorization: Bearer ${Env:GITHUB_PERSONAL_TOKEN}"
+echo "Requesting registration URL ${payload}"
+$final_token = $payload.token
+try {
+    C:\github\actions-runner\config.cmd --url https://github.com/${Env:GITHUB_OWNER} --token ${final_token} --runnergroup ${Env:GITHUB_RUNNER_GROUP} --labels ${Env:GITHUB_RUNNER_LABELS}
+    C:\github\actions-runner\run.cmd
+}
+finally {
+    C:\github\actions-runner\config.cmd remove --token ${final_token}
+}
+\end{lstlisting}
+
+First we obtain the registration token for linking the runner to the organization. In order to obtain this token we have to authenticate using our PAT, which is stored as an environment variable where we deploy, i.e AKS. Once we establish the connection of the runner with the github organization and update the config.cmd in this process, we can execute the runner, which actively listens for jobs as given by the github organization.
+
+\subsection{Image Creation}
+Now that we have the Dockerfile we can use Docker to build this file to obtain an image which can be deployed to a container in AKS. This can be performed using the command 
+\begin{lstlisting}[breaklines]
+docker build -t <image-name:tag> <PATH_of_Dockerfile>
+\end{lstlisting}
+where we specify the image name and the tag for the image to be created.
+
+\subsection{Uploading image to ACR}
+Now that we have built the image, we have to upload it into ACR. We specify the ACR location to where the image has to be uploaded. This is done using the command 
+
+\begin{lstlisting}[breaklines]
+docker tag <image-name> <ACR-name/repo>
+\end{lstlisting}
+
+Now we can push the image to ACR using the command
+
+\begin{lstlisting}[breaklines]
+docker push <ACR-name/repo>
+\end{lstlisting}
+
+\subsection{Creating a deployment in AKS} 
+In order to create a deployment in AKS, we have to declare different yaml files. There are 2 yaml files for this deployment. Secret.yaml and deployment.yaml. The secret.yaml file contains the PAT necessary as mentioned above. The deployment.yaml files contains information like the namespace in which we are deploying, the runner group name, runner owner i.e the github organization name, the spec of the cluster as well as the image name from ACR among other parameters.
+Here is a snippet from the secret.yaml file.
+
+\begin{lstlisting}[breaklines]
+metadata:
+  name: github-secret
+  namespace: github-runner-test-sj
+type: Opaque
+stringData:
+  GITHUB_PERSONAL_TOKEN: "PAT"
+\end{lstlisting}
+
+Here is a snippet from deployment.yaml file.
+\begin{lstlisting}[breaklines]
+metadata:
+	name: runner-windows
+	namespace: github-runner-test-sj
+spec:
+	replicas: 1
+	containers:
+	- name: runner-windows
+        image: evuedsoacr.azurecr.io/amd-it/github-runners-windows:17503
+        env:
+        - name: GITHUB_OWNER
+          value: amd-trial
+        - name: GITHUB_RUNNER_GROUP
+          value: windows-runners-test-sj
+          - name: GITHUB_PERSONAL_TOKEN 
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: GITHUB_PERSONAL_TOKEN
+	
+\end{lstlisting}
+These are a few of the important fields in the deployment.yaml file. We specify the location of the image, the github organization for which the runner has to be created, the number of replicas etc.
+We also specify the deployment to use the secrets defined by the secret.yaml file.
+
+
+

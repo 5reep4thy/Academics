@@ -1,0 +1,48 @@
+% Chapter Template
+
+\chapter{Methodology} % Main chapter title
+
+\label{ChapterX} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter X. \emph{Chapter Title Here}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+From the logical flow of the application, there are 2 main components.
+\begin{description}
+\item[$\bullet$] Video processing - From the web camera, we capture frames and display them consecutively as a video, along with the corresponding background and the information about the frames per second.
+
+\item[$\bullet$] Audio processing - From the microphone, we capture audio, then convert it into text, analyse the text to recognize the sentiments and give a value to the video processing part to decide on the background
+
+\end{description}
+\section{Video processing}
+\subsection{Video capture}
+The video is obtained by capturing frames from the web camera. Then the frames are displayed one after the another to create the video.
+
+\subsection{Background detection}
+The background detection works on the principle of segmentation, where the input image is passed as input (r x c x 3), and an output (r x c x 1) segmentation mask is returned which can be used to detect different segments, i.e foreground and background. The implementation of this feature from the cvzone library is based on the MobileNetV3 model This is not implemented in the application but an external library is used for the functionality.
+
+----------------Put segmentation image here------------------
+
+\subsection{Background removal}
+Once we get the segmentation mask, i.e once we have information about the background, we can apply another image of the same size on top the image from only on areas where the detected segment is the background. This creates the illusion that the objects in the image, i.e the foreground and present in another area, i.e the changed background.
+
+\subsection{Frames per second}
+The frames per second are calculated based on the number of frame changes happening inside the window per second.
+
+\section{Audio processing}
+\subsection{Audio capture}
+The audio is captured via the microphone from when the input goes above the minimum threshold defined to when it goes below the threshold.
+
+\subsection{Audio to text}
+The audio is converted to text using sequence to sequence models. A third party library is used for it's implementation within the application.
+
+\subsection{Sentiment analysis on text}
+Once the text has been obtained from the audio, we analyse the sentiments from the text using BERT and other NLP techniques. A third party library is used for it's implementation within the application.
+
+\subsection{Return sentiment to Video Processing Task}
+Once the sentiment is calculated, we can change the background of the video accordingly.
+
+
+

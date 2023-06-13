@@ -1,0 +1,41 @@
+\contentsline {chapter}{Certificate}{i}{dummy.2}%
+\vspace {1em}
+\contentsline {chapter}{Abstract}{ii}{dummy.3}%
+\vspace {1em}
+\contentsline {chapter}{Acknowledgements}{iii}{dummy.4}%
+\vspace {1em}
+\contentsline {chapter}{Contents}{iv}{dummy.5}%
+\contentsline {chapter}{List of Figures}{vi}{dummy.7}%
+\contentsline {chapter}{List of Tables}{vii}{dummy.9}%
+\contentsline {chapter}{Abbreviations}{viii}{dummy.11}%
+\contentsline {chapter}{Symbols}{ix}{dummy.14}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.17}%
+\contentsline {section}{\numberline {1.1}Background}{1}{section.18}%
+\contentsline {subsection}{\numberline {1.1.1}Natural Language Processing}{1}{subsection.19}%
+\contentsline {subsection}{\numberline {1.1.2}Transfer Learning}{2}{subsection.20}%
+\contentsline {subsection}{\numberline {1.1.3}Language Modeling}{2}{subsection.21}%
+\contentsline {section}{\numberline {1.2}Motivation}{3}{section.22}%
+\contentsline {section}{\numberline {1.3}Objective}{4}{section.23}%
+\contentsline {chapter}{\numberline {2}Methodology}{5}{chapter.24}%
+\contentsline {section}{\numberline {2.1}Transformers}{5}{section.25}%
+\contentsline {subsection}{\numberline {2.1.1}BERT}{5}{subsection.26}%
+\contentsline {subsection}{\numberline {2.1.2}T5}{6}{subsection.27}%
+\contentsline {section}{\numberline {2.2}Solving Commonsense inference tasks}{6}{section.28}%
+\contentsline {chapter}{\numberline {3}Literature Review}{7}{chapter.29}%
+\contentsline {section}{\numberline {3.1}RNNs}{7}{section.30}%
+\contentsline {section}{\numberline {3.2}LSTMs}{7}{section.31}%
+\contentsline {section}{\numberline {3.3}Siamese NNs}{8}{section.32}%
+\contentsline {section}{\numberline {3.4}BERT}{8}{section.33}%
+\contentsline {section}{\numberline {3.5}DialoGPT}{8}{section.34}%
+\contentsline {section}{\numberline {3.6}T5}{8}{section.35}%
+\contentsline {section}{\numberline {3.7}EncT5}{9}{section.36}%
+\contentsline {section}{\numberline {3.8}MACAW}{9}{section.37}%
+\contentsline {subsection}{\numberline {3.8.1}Why use MACAW?}{10}{subsection.38}%
+\contentsline {subsection}{\numberline {3.8.2}What is Macaw capable of?}{10}{subsection.65}%
+\contentsline {chapter}{\numberline {4}Problem Statement and proposed solution}{12}{chapter.66}%
+\contentsline {section}{\numberline {4.1}Problem Statement}{12}{section.67}%
+\contentsline {section}{\numberline {4.2}Dataset}{12}{section.68}%
+\contentsline {section}{\numberline {4.3}Proposed solution}{13}{section.69}%
+\vspace {2em}
+\vspace {2em}
+\contentsline {chapter}{Bibliography}{14}{dummy.70}%

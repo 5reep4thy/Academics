@@ -1,0 +1,303 @@
+\documentclass[11pt, a4paper, oneside]{Thesis} % Paper size, default font size and one-sided paper
+\usepackage{wrapfig}
+\usepackage{lscape}
+\usepackage{rotating}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{amsmath}
+
+
+%\usepackage{subcaption} %incompatible with subfig
+\usepackage[square, numbers]{natbib} % Use the natbib reference package - read up on this to edit the reference style; if you want text (e.g. Smith et al., 2012) for the in-text references (instead of numbers), remove 'numbers' v
+
+\hypersetup{urlcolor=black, colorlinks=true} % Colors hyperlinks in blue - change to black if annoyingv`	
+\title{\ttitle} % Defines the thesis title - don't touch this
+
+
+
+
+
+%======================================================================|
+\thesistitle{DevSecOps Internship at AMD}
+\authors{Sreepathy Jayanand \\[-2mm] (Roll No: CED17I038)}
+\DEPARTMENT{DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING}
+
+%======================================================================|
+
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+%======================================================================|
+\begin{document}
+\makeatletter
+\renewcommand*{\NAT@nmfmt}[1]{\textsc{#1}}
+\makeatother
+
+% prints author names as small caps
+
+
+\frontmatter % Use roman page numbering style (i, ii, iii, iv...) for the pre-content pages
+
+\setstretch{1.6} % Line spacing of 1.6 (double line spacing)
+
+% Define the page headers using the FancyHdr package and set up for one-sided printing
+\fancyhead{} % Clears all page headers and footers
+\rhead{\thepage} % Sets the right side header to show the page number
+\lhead{} % Clears the left side page header
+
+\pagestyle{fancy} % Finally, use the "fancy" page style to implement the FancyHdr headers
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % New command to make the lines in the title page
+
+% PDF meta-data
+\hypersetup{pdftitle={\ttitle}}
+\hypersetup{pdfsubject=\subjectname}
+\hypersetup{pdfauthor=\authornames}
+\hypersetup{pdfkeywords=\keywordnames}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\begin{titlepage}
+\begin{center}
+
+
+%\HRule \\[0.4cm] % Horizontal line
+\vspace{0.4cm} % Horizontal line
+{\huge \bfseries \ttitle}\\[0.4cm] % Thesis title
+%\HRule \\[1.5cm] % Horizontal line
+\vspace{1.5cm} % Horizontal line
+
+ 
+ \large \textit{Internship report submitted in partial fulfilment of the requirements\\ for the degree of B.Tech. (and M.Tech (for DD))}\\[0.3cm] % University requirement text
+\textit{by}\\[0.4cm]
+
+\authornames
+
+\vfill
+\graphicspath{ {./Figures/} }
+\begin{figure}[hb]
+  \centering
+  \includegraphics[width=0.35\linewidth]{iiitdm.png}
+\end{figure}
+
+\DEPTNAME\\ % Department name
+\textsc{ \UNIVNAME}\\[1.5cm] % University name
+\large \today\\[2cm] % Date
+
+
+\end{center}
+
+\end{titlepage}
+
+%----------------------------------------------------------------------------------------
+%	DECLARATION PAGE
+%	Your institution may give you a different text to place here
+%----------------------------------------------------------------------------------------
+
+\Declaration{\addtocontents{toc}{\vspace{1em}} % Add a gap in the Contents, for aesthetics
+
+
+%\begin{center}
+%\LARGE{\underline{\textbf{Declaration of Originality}}}
+%\end{center}
+\noindent I, \textbf{Sreepathy Jayanand}, with Roll No: \textbf{CED17I038} hereby declare that the material presented in the Internship Report titled \textbf{DevSecOps Intern at AMD} \noindent represents original work carried out by me in the \textbf{Department of Computer Science and Engineering} at the \textbf{Indian Institute of Information Technology, 
+Design and Manufacturing, Kancheepuram} during the year \textbf{2021}.
+%\noindent 
+With my signature, I certify that:
+\begin{itemize}
+	\item I have not manipulated any of the data or results.\\[-10mm]
+	\item I have not committed any plagiarism of intellectual
+	property.
+	I have clearly indicated and referenced the contributions of
+		others.\\[-10mm]
+	\item I have explicitly acknowledged all collaborative research
+		and discussions.\\[-10mm]
+	\item I have understood that any false claim will result in severe
+		disciplinary action.\\[-10mm]
+	\item I have understood that the work may be screened for any form
+		of academic {misconduct}.
+\end{itemize}
+
+\vspace{10mm}
+
+\noindent {\footnotesize{Date: October 27 2021	\hfill	Student's Signature: Sreepathy Jayanand}} \qquad
+
+\vspace{10mm}
+
+\noindent 
+
+In my capacity as supervisor of the above-mentioned work, I certify
+that the work presented in this Report is carried out under my supervision, and is worthy of consideration for the requirements of internship work during the period May 2021 to October 2021.
+\vspace{10mm}
+
+\noindent  {\footnotesize{Advisor's Name: CY Hiew\hfill Advisor's Signature: CY Hiew}} \qquad
+
+
+
+
+
+
+\vfill{}}
+
+\clearpage % Start a new page
+
+
+
+
+
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT PAGE
+%----------------------------------------------------------------------------------------
+
+\addtotoc{Abstract} % Add the "Abstract" page entry to the Contents
+
+\abstract{\addtocontents{toc}{\vspace{1em}} % Add a gap in the Contents, for aesthetics
+
+This report documents the internship work I carried out at AMD India Ltd. under the DevSecOps department. This report describes the following tasks completed during my internship at AMD India Ltd.
+
+1. Creation of an API server, serving an internal service portal for obtaining various data from Github.
+
+
+2. Creation of a GitHub runner agent, helping other organizations run work-flows in the cloud.
+
+
+APIs or application programming interfaces let one product or service communicate with other products and services without having to know the internal implementation details making their work easier. I have here helped develop an API for the AMD - IT organization that queries and modifies data for the GitHub enterprise solution set up within AMD. The final output is a an API server ready to be run in the cloud as a container.
+
+
+This report also presents the work done in developing a GitHub runner agent that enables other organizations within AMD to run workflows such as running Github actions and running custom workflows in the cloud.
+
+
+}
+
+\clearpage % Start a new page
+
+%----------------------------------------------------------------------------------------
+%	ACKNOWLEDGEMENTS
+%----------------------------------------------------------------------------------------
+
+\setstretch{1.3} % Reset the line-spacing to 1.3 for body text (if it has changed)
+
+\acknowledgements{\addtocontents{toc}{\vspace{1em}} % Add a gap in the Contents, for aesthetics
+
+I would like to take this opportunity to express my gratitude to everyone who helped me during my internship. I am grateful for their constant support, constructive criticism and friendly advice. I express my heartfelt gratitude to AMD India Ltd. for giving me the opportunity to be a part of such an amazing organization and contributing to their growth at the same time.
+
+
+I express my sincere thanks to Mr. Sharafudden Hassan, Principal Member of Technical Staff AMD, who despite being extremely busy with his responsibilities took the time to listen, direct and keep me on the right track during my internship.
+
+
+I would also like to express my gratitude to Mr. Praveen Kumar Pagudala, Senior Manager AMD for his constant guidance and support during these tough times, helping me complete the internship without any hassle.
+
+
+Last but certainly not least, I would like to thank my mentor, Mr. CY Hiew, Senior Member of Technical staff AMD, for taking his time to give me valuable insights, suggesting possible improvements and for being always available for any doubts.
+
+}
+\clearpage % Start a new page
+
+%----------------------------------------------------------------------------------------
+%	LIST OF CONTENTS/FIGURES/TABLES PAGES
+%----------------------------------------------------------------------------------------
+
+\pagestyle{fancy} % The page style headers have been "empty" all this time, now use the "fancy" headers as defined before to bring them back
+
+\lhead{\emph{Contents}} % Set the left side page header to "Contents"
+\tableofcontents % Write out the Table of Contents
+
+\lhead{\emph{List of Figures}} % Set the left side page header to "List of Figures"
+\listoffigures % Write out the List of Figures
+
+\lhead{\emph{List of Tables}} % Set the left side page header to "List of Tables"
+\listoftables % Write out the List of Tables
+
+%----------------------------------------------------------------------------------------
+%	ABBREVIATIONS
+%----------------------------------------------------------------------------------------
+
+\clearpage % Start a new page
+
+\setstretch{1.5} % Set the line spacing to 1.5, this makes the following tables easier to read
+
+\lhead{\emph{Abbreviations}} % Set the left side page header to "Abbreviations"
+\listofsymbols{ll} % Include a list of Abbreviations (a table of two columns)
+{
+\textbf{FEA} & \textbf{F}inite \textbf{E}lement \textbf{A}nalysis \\
+\textbf{FEM} & \textbf{F}inite \textbf{E}lement \textbf{M}ethod \\
+\textbf{LVDT} & \textbf{L}inear \textbf{V}ariable \textbf{D}ifferential \textbf{T}ransformer \\
+\textbf{RC} & \textbf{R}einforced \textbf{C}oncrete
+%\textbf{Acronym} & \textbf{W}hat (it) \textbf{S}tands \textbf{F}or \\
+}
+
+%----------------------------------------------------------------------------------------
+%	SYMBOLS
+%----------------------------------------------------------------------------------------
+
+\clearpage % Start a new page
+
+\lhead{\emph{Symbols}} % Set the left side page header to "Symbols"
+
+\listofnomenclature{lll} % Include a list of Symbols (a two column table)
+{
+$D^{el}$ & elasticity tensor \\
+$\sigma$ & stress tensor \\
+$ \varepsilon $ & strain tensor \\
+% Symbol & Name & Unit \\
+
+}
+
+%----------------------------------------------------------------------------------------
+%	DEDICATION
+%----------------------------------------------------------------------------------------
+%
+\setstretch{1.3} % Return the line spacing back to 1.3
+%
+\pagestyle{empty} % Page style needs to be empty for this page
+%
+\dedicatory{For/Dedicated to/To my\ldots} % Dedication text
+%
+\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
+
+%----------------------------------------------------------------------------------------
+%THESIS CONTENT - CHAPTERS
+%----------------------------------------------------------------------------------------
+\mainmatter % Begin numeric (1,2,3...) page numbering
+\pagestyle{fancy} 
+
+
+\input{chap_1}
+\input{chap_2} 
+\input{chap_3}
+\input{chap_4} 
+%\input{chap_5} 
+%\input{chap_6} 
+%\input{chap_7} 
+
+%----------------------------------------------------------------------------------------
+%THESIS CONTENT - APPENDICES
+%----------------------------------------------------------------------------------------
+\addtocontents{toc}{\vspace{2em}} 
+\appendix 
+\input{app_1}
+\input{app_2}
+
+
+\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
+
+\backmatter
+
+%----------------------------------------------------------------------------------------
+%BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+\nocite{*}
+\label{Bibliography}
+
+\lhead{\emph{Bibliography}} % Change the page header to say "Bibliography"
+
+\bibliographystyle{IEEEtran} % Use the "custom" BibTeX style for formatting the Bibliography
+
+\bibliography{Bibliography} % The references (bibliography) information are stored in the file named "Bibliography.bib"
+
+\end{document}  

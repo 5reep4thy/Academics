@@ -1,0 +1,75 @@
+% Chapter Template
+
+\chapter{Literature Review} % Main chapter title
+
+\label{Chapter3} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter 3. \emph{Literature Review}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+Let us look at some of the different approches and models at tackling the tasks which we have discussed.
+\section{RNNs}
+Recurrent Neural Networks or RNNs is an machine learning model ideal for sequential data such as text, financial data, speech, audio, video etc. RNNs virtually have an internal memory that allows the previous inputs to affect the subsequent predictions. This would particularly be a really good strategy for language generation as the next word is heavily dependent on the previous words.
+\section{LSTMs}
+Long-short term memory or LSTM are a betterment of RNNs but is better than traditional RNNs having a better memory compared to the latter. During the multiple learning processes of LSTMs, it learns to retain relevant information and lose the irrelevant information. This is done using forget gates, which is responsible for calculating the cell state which is not relevant so that it can be discarded.
+\section{Siamese NNs}
+Siamese neural networks for natural language classification are 2 similar neural networks each capable of generating embeddings. After obtaining the different embeddings that can be taken and various distance functions can be used to find the "distances" between various candidate answers and the question.
+\section{BERT}
+BERT\cite{DBLP:journals/corr/abs-1810-04805} for sequence classification is a model which can help in classifying the given input to a set of given labels. This is done by adding some fully connected layers on top of the BERT encoder to try to tune it down to the number of tokens.
+\section{DialoGPT}
+Dialogue Generative pre-trained transformer or DialoGPT\cite{DialoGPTIntro} is a generative model trained on 147M conversation-like exchanges extracted from Reddit comment chains. It can attain the performance close to humans in signle-turn dialogue settings. It is built on top of GPT-2. It uses a multi-layer self-attentive mechanism to allow fully-connected cross attention to the full context in a computationally efficient manner.
+\section{T5}
+T5\cite{DBLP:journals/corr/abs-1910-10683} is a generative model trained on the colossal clean crawled corpus or C4 dataset. It achieves the state-of-the-art results on many generative benchmarks. It can be used in a variety of tasks such as machine translation, summarization, question answering, classification. Even the classification task is treated as a generation task, which the whole point of T5, i.e every task is treated as a generation task. In the comprehensive paper "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer" it is discussed how the encoder-decoder architecture prevails the existing decoder only architecture. It is trained not only in one task but in multiple tasks thus making it a one model fit all task approach.
+The encoder of T5 can be used to obtain the embeddings and we can add another linear and dropout layers on top to tune it down to obtain the labels possible for each text instance.
+
+
+
+\section{EncT5}
+Encoder-decoder transformers are some of the most promising architectures for generative tasks. But they can also be used for other tasks effectively. It is also more favourable over architectures such as BERT for pre-training on language model task when it comes to large scale models which could take months to train given it's generality. This paper "EncT5"\cite{EncT5Intro} proposes a way to efficiently fine-tune pre-trained encoder-decoder models such as T5 for classification and regressive tasks using the encoder layers alone and leaving out the decoder layers. Hence with less than half the parameters of T5 it can perform similarly to T5 on various benchmarks.
+
+
+\section{MACAW}
+MACAW\cite{MacawIntro} is a versatile, generative question-answering (QA) system that is built on UnifiedQA, itself built on T5 and exhibits strong performance in a wide variety of tasks, and outperforms GPT-3 in the "Challenge 300", a suite of 300 challenge questions, despite being an order of magnitude smaller. The MACAW large has only 11 billion parameters compared to 175 billion parameters of GPT-3. 
+
+MACAW allows different permutations or angles, take a question get the answer; take an answer and obtain a suitable question; or take a question and answer, and obtain a series of options.
+\subsection{Why use MACAW?}
+Macaw is a model capable of general question and has been built on top of UnifiedQA\cite{UnifiedQAIntro}, and further fine tuned on the ARC and ARC-DA datasets, which are grade school-level, MCQs to encourage research in advanced question-answering. This makes Macaw a good model to further work on for commonsense inference tasks as well. Here is an example from ARC dataset:
+\begin{lstlisting}[breaklines]
+{
+  "id": "MCAS_2000_4_6",
+  "question": {
+    "stem": "Which technology was developed most recently?",
+    "choices": [
+      {
+        "text": "cellular telephone",
+        "label": "A"
+      },
+      {
+        "text": "television",
+        "label": "B"
+      },
+      {
+        "text": "refrigerator",
+        "label": "C"
+      },
+      {
+        "text": "airplane",
+        "label": "D"
+      }
+    ]
+  },
+  "answerKey": "A"
+}
+\end{lstlisting}
+\subsection{What is Macaw capable of?}
+As we've seen, Macaw was trained on the ARC dataset which makes it pretty good at question answering in general which can be further fine tuned for common sense inference. Let us look at some sexample that Macaw generated\cite{MacawIntro}:\\
+Q: A young boy was rushed to the hospital emergency room, but
+the ER doctor saw the boy and refused to operate. ”This boy is my
+son,” the doctor said. But the doctor wasn’t the boy’s father. How
+could this be?\\
+A: The doctor mistook the boy for his own son\\
+Q: How would you make a house conduct electricity?\\
+A: Paint it with a metal paint\\
+

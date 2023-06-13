@@ -1,0 +1,24 @@
+% Chapter Template
+
+\chapter{Problem Statement and proposed solution} % Main chapter title
+
+\label{Chapter4} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter 4. \emph{Conclusions}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+\section{Problem Statement}
+Given a context/sentence and a list of possible sentences which can follow the given context logically, find out the best possible follow on sentence from the list.
+
+\section{Dataset}
+The Macaw model was fine tuned on ARC dataset, a high school based science question and answer dataset. It has the ability to get logical conclusions from them. The dataset chosen for this project is the Situations With Adversarial Generations or SWAG dataset, which contains logical follow on sentences from a given source sentence although it is not specifically a question and answer dataset.
+The dataset contains descriptions like "she opened the hood of the car," and we are expected to reason out the situation and anticipate what might come next, eg - "then, she examined the engine".
+
+\section{Proposed solution}
+The EncT5 paper promises pretty good performance from the encoder of an encoder-decoder model. Macaw is a T5 based model, which itself is an encoder-decoder model, specifically trained for reasoning based question and answering. This makes for a good case that the encoder of the Macaw model can be further used elsewhere.
+So the proposed model would involve the encoder of the MACAW model(encoder-decoder generative model) and added on top of this would be a series of linear layers, outputting the probabilities for the various follow on sentences.
+
+
+

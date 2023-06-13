@@ -1,0 +1,75 @@
+
+1 : org.pqrs.karabiner.agent.karabiner_grabber.plist
+
+Use : Detect external keyboard presses in the background
+
+2 : org.macosforge.xquartz.startx.plist
+
+Use : Run X11 windowing application
+
+3 : com.apple.launchd.plist
+
+Use : Starts, stops services and applications
+
+4 : com.apple.cfprefd.xpc.agent
+
+Use : Manages core preferences
+
+5 : com.apple.cloudd
+
+Use : Manages apple cloud services
+
+6 : com.apple.itunescloudd
+
+Use Manages particularly music services in apple cloud
+
+7 : com.apple.usbd
+
+Use Manages charging and data transfer of iOS devices connected using usb
+
+8 : com.macpaw.CleanMyMac4.Agent.plist
+
+Use : Starts up an CleanMyMac application after boot up
+
+9 : com.apple.navd
+
+Use : Checks upcoming schedule in calendar application
+
+10 : com.microsoft.teams.TeamsUpdaterDaemon.plist
+
+Use : Checks for updates in Teams application
+
+11 : com.apple.softwareupdated
+
+Use : Checks for core software updates
+
+12 : com.apple.com.fseventsd
+
+Use : Takes care of file system (particularly when backing up data)
+
+13 : com.apple.logd
+
+Use : Takes care of writing the log files during diagnostics or when errors occur
+
+14 : com.apple.com.diskmanagementd
+
+Use : Takes care of writing / reading files
+
+15 : com.apple.sandboxd
+
+Use : Contains damage if an application becomes compromised
+
+16 : com.apple.parsecd
+
+Use : Used for suggestions while searching
+
+17 : com.apple.universalaccessd
+
+Use : Handles zooming of content if zoom is turned on
+
+18 : com.apple.sharingd
+
+Use : Handles shared computers, remote access etc
+
+
+
